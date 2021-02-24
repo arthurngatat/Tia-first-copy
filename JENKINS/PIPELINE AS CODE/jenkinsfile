@@ -1,0 +1,99 @@
+
+
+
+pipeline {
+    agent any
+    stages {
+        stage('Example Build') {
+            steps {
+               echo 'Hello World' 
+            }
+        }
+        stage('Example Deploy') {
+            when {
+               branch 'production' 
+            }
+            steps {
+                echo 'Deploying'
+            }
+        }
+    }
+    post {
+        always {
+            echo 'I will always say Hello again!'
+        }
+    }
+}
+
+
+
+pipeline {
+    agent any
+    environment {
+    registry = 'leonardtia/devops-test-repo'
+    registryCredential = 'docker-hub'
+    dockerImage = ''
+    }
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout([$class: 'GitSCM', branches: [[name: '*/main']], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[url: 'https://github.com/leonardtia1/dockerfile.git']]]) 
+            }
+        }
+        stage('Building image') {
+            steps {
+                script {
+                    dockerImage = docker.build registry + ":http-test-$BUILD_NUMBER"
+                }
+            }   
+        }
+        stage('Running Image') {
+            steps {
+                sh '''
+                 #!/bin/bash
+                 docker images
+                 docker run \
+                    -d \
+                    -p 8$BUILD_NUMBER:80 \
+                    --name=http-test-$BUILD_NUMBER \
+                    leonardtia/devops-test-repo:http-test-$BUILD_NUMBER
+                docker ps
+                ''' 
+            }   
+        }
+        stage('Deploying Image') {
+            steps {
+                script {
+                    docker.withRegistry( '', registryCredential ) {
+                        dockerImage.push()
+                    }
+                }
+            }
+        }
+        stage('Remove Unused docker image') {
+            steps {
+                sh "docker rmi --force $registry:http-test-$BUILD_NUMBER"
+                sh "docker images"
+                sh "docker ps"
+            }
+        }
+    }
+}
+
+
+
+
+From httpd
+Maintainer Tia
+WORKDIR /usr/local/apache2/htdocs/
+
+RUN  wget https://linux-devops-course.s3.amazonaws.com/WEB+SIDE+HTML/www.liyeplimal.net.zip
+RUN unzip www.liyeplimal.net.zip
+RUN rm -rf www.liyeplimal.net.zip
+RUN cp -R www.liyeplimal.net/* .
+RUN rm -rf www.liyeplimal.net
+
+CMD "catalina.sh" "run"
+EXPOSE 80
+
+

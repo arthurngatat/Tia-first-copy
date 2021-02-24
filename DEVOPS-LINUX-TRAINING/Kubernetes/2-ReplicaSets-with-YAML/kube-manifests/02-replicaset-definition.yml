@@ -1,0 +1,78 @@
+---
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: myapp2-rs  
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: myapp2
+  template: 
+    metadata: # Dictionary
+      name: myapp2-pod
+      labels: # Dictionary 
+        app: myapp2         
+    spec:
+      containers: # List
+        - name: myapp2-container
+          image: stacksimplify/kubenginx:2.0.0
+          ports:
+            - containerPort: 80
+
+---
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: myapp-rs 
+  labels:
+    app: myapp
+    type: frond-end
+spec:
+  template:
+    metadata:
+      name: myapp-pod 
+      labels: 
+        app: myapp   
+        tier: front-end     
+    spec:
+      containers: 
+        - name: nginx-container
+          image: nginx
+          ports:
+            - containerPort: 80 
+  replicas: 3
+  selector:
+    matchLabels:
+        tier: front-end  # or  app: myapp 
+     
+
+### ReplicationController
+---
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: myapp-rc
+  labels:
+    app: myapp
+    type: frond-end
+spec:
+  template:
+    metadata:
+      name: myapp-pod 
+      labels: 
+        app: myapp   
+        tier: front-end     
+    spec:
+      containers: 
+        - name: nginx-container
+          image: nginx
+          ports:
+            - containerPort: 80 
+  replicas: 3
+
+
+
+
+  
+   

@@ -1,0 +1,32 @@
+# This is just for testing. It recommend to create the deployment
+
+apiVersion: v1 # String
+kind: Pod  # String
+metadata: # Dictionary
+  name: myapp-pod # the name of the port
+  labels: # Dictionary 
+    app: myapp # to filter our application in the future   
+    tier: front-end     
+spec:
+  containers: # List
+    - name: myapp # the name  of the container
+      image: stacksimplify/kubenginx:1.0.0
+      ports:
+        - containerPort: 80 # the port inside the container
+
+
+# -------------------------------------------------------------------------------- 
+
+apiVersion: v1
+kind: Pod 
+metadata:
+  name: myapp-pod 
+  labels: 
+    app: myapp   
+    tier: front-end     
+spec:
+  containers: 
+    - name: myapp 
+      image: stacksimplify/kubenginx:1.0.0
+      ports:
+        - containerPort: 80 

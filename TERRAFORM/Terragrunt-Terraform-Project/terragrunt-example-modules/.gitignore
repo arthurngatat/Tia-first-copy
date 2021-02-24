@@ -1,0 +1,6 @@
+# Terraform
+.terraform
+terraform.tfvars
+*.tfstate
+*.tfstate.backup
+push.sh
